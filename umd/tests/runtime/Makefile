@@ -28,8 +28,21 @@ ROOT := $(TOP)
 
 TOOLCHAIN_PREFIX ?=
 
-ifeq ($(TOOLCHAIN_PREFIX),)
-$(error Toolchain prefix missing)
+ifneq ($(TOOLCHAIN_PREFIX),)
+CC=$(TOOLCHAIN_PREFIX)gcc
+CXX=$(TOOLCHAIN_PREFIX)g++
+LD=$(TOOLCHAIN_PREFIX)ld
+else 
+$(warning Toolchain prefix missing, using defaults.)
+ifndef CC
+CC=gcc
+endif # ifndef CC
+ifndef CXX
+CXX=g++
+endif # ifndef CXX
+ifndef LD
+LD=ld
+endif # ifndef LD
 endif
 
 MODULE := nvdla_runtime
@@ -52,4 +65,4 @@ include rules.mk
 # the logic to compile and link stuff is in here
 $(TEST_BIN): $(ALLMODULE_OBJS) $(SHARED_LIBS)
 	@echo building $(MODULE)  $@
-	$(TOOLCHAIN_PREFIX)g++ $(ALLMODULE_OBJS) -pthread -L$(ROOT)/external/ -ljpeg -L$(BUILDOUT)/libnvdla_runtime -lnvdla_runtime -o $@ -Wl,-rpath=.
+	$(CXX) $(ALLMODULE_OBJS) -pthread -ljpeg -L$(BUILDOUT)/libnvdla_runtime -lnvdla_runtime -o $@ -Wl,-rpath=.
